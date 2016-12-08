@@ -1,0 +1,4 @@
+[package]
+name = "bathroom_security"
+version = "0.1.0"
+authors = ["Sylvain Laperche <sylvain.laperche@gmail.com>"]
