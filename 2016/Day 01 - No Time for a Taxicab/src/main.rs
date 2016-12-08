@@ -94,33 +94,24 @@ impl Point {
 
 /// Returns the new direction after turning.
 fn turn(dir: Direction, turn: Turn) -> Direction {
-    match dir {
-        Direction::North =>
-            match turn {
-                Turn::Left  => Direction::West,
-                Turn::Right => Direction::East,
+    match turn {
+        Turn::Left =>
+            match dir {
+                Direction::North => Direction::West,
+                Direction::East  => Direction::North,
+                Direction::South => Direction::East,
+                Direction::West  => Direction::South,
             },
 
-        Direction::East =>
-            match turn {
-                Turn::Left  => Direction::North,
-                Turn::Right => Direction::South,
-            },
-
-        Direction::South =>
-            match turn {
-                Turn::Left  => Direction::East,
-                Turn::Right => Direction::West,
-            },
-
-        Direction::West =>
-            match turn {
-                Turn::Left => Direction::South,
-                Turn::Right => Direction::North,
+        Turn::Right =>
+            match dir {
+                Direction::North => Direction::East,
+                Direction::East  => Direction::South,
+                Direction::South => Direction::West,
+                Direction::West  => Direction::North,
             },
     }
 }
-
 
 /// Computes the Manhattan distance between two points.
 fn manhattan_dist(p: Point, q: Point) -> i32 {
