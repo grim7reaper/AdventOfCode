@@ -12,6 +12,7 @@
 // }}}
 // {{{ Crates
 
+use std::collections::HashSet;
 use std::fs::File;
 use std::io::BufRead;
 use std::io::BufReader;
@@ -59,6 +60,50 @@ impl FromStr for Move {
 // }}}
 // {{{ Point
 
+/// Represents an agent working for Santa.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+struct Agent {
+    position:  Point,
+    direction: Direction,
+    has_read_all: bool,
+}
+
+impl Agent {
+    /// Drops the agent on the landing site.
+    fn new(has_read_all: bool) -> Agent {
+        Agent {
+            position: Point { x: 0, y: 0 },
+            direction: Direction::North,
+            has_read_all: has_read_all,
+        }
+    }
+
+    /// Moves according to the instructions.
+    fn follow_instructions(&mut self, instructions: &Vec<Move>) {
+        let mut blocks = HashSet::new();
+
+        for instruction in instructions {
+            self.direction = turn(self.direction, instruction.turn);
+            for _ in 0 .. instruction.steps {
+                // If we have read **all** the instructions, we know we should
+                // stop as soon as we walk on the same block twice.
+                if self.has_read_all {
+                    if !blocks.insert(self.position) {
+                        break;
+                    }
+                }
+                match self.direction {
+                    Direction::North => self.position.y += 1,
+                    Direction::East  => self.position.x += 1,
+                    Direction::South => self.position.y -= 1,
+                    Direction::West  => self.position.x -= 1,
+                }
+
+            }
+        }
+    }
+}
+
 /// Represents a point's orientation.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 enum Direction {
@@ -69,24 +114,10 @@ enum Direction {
 }
 
 /// Represents a location on the map.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 struct Point {
-    dir: Direction,
     x:   i32,
     y:   i32,
-}
-
-impl Point {
-    /// Moves the point according to the instruction.
-    fn walk(&mut self, instruction: Move) {
-        self.dir = turn(self.dir, instruction.turn);
-        match self.dir {
-            Direction::North => self.y += instruction.steps,
-            Direction::East  => self.x += instruction.steps,
-            Direction::South => self.y -= instruction.steps,
-            Direction::West  => self.x -= instruction.steps,
-        }
-    }
 }
 
 // }}}
@@ -119,19 +150,17 @@ fn manhattan_dist(p: Point, q: Point) -> i32 {
 }
 
 /// Computes the distance between our landing site and the Easter Bunny HQ.
-fn compute_shortest_path_to_hq(instructions: &str) -> i32{
+fn follow_instructions(instructions: &str, has_read_all: bool) -> i32{
     // Parse the document's instructions.
     let moves: Vec<Move> = instructions.split(',')
                                        .map(|s| s.trim().parse().unwrap())
                                        .collect();
     // Follow the instructions.
-    let start = Point { dir: Direction::North, x: 0, y: 0 };
-    let mut santa = start;
-    for instruction in moves {
-        santa.walk(instruction);
-    }
+    let start = Point { x: 0, y: 0 };
+    let mut me = Agent::new(has_read_all);
+    me.follow_instructions(&moves);
     // Compute the distance.
-    manhattan_dist(start, santa)
+    manhattan_dist(start, me.position)
 }
 
 // }}}
@@ -144,16 +173,22 @@ fn main() {
     BufReader::new(&file).read_line(&mut input).unwrap();
     assert!(!input.is_empty());
 
-    println!("{}", compute_shortest_path_to_hq(&input));
+    println!("Part 1: {}", follow_instructions(&input, false));
+    println!("Part 2: {}", follow_instructions(&input, true));
 }
 
 // {{{ Tests
 
 #[test]
-fn examples() {
-    assert_eq!(compute_shortest_path_to_hq("R2, L3"),          5);
-    assert_eq!(compute_shortest_path_to_hq("R2, R2, R2"),      2);
-    assert_eq!(compute_shortest_path_to_hq("R5, L5, R5, R3"), 12);
+fn examples_part1() {
+    assert_eq!(follow_instructions("R2, L3",         false),  5);
+    assert_eq!(follow_instructions("R2, R2, R2",     false),  2);
+    assert_eq!(follow_instructions("R5, L5, R5, R3", false), 12);
+}
+
+#[test]
+fn examples_part2() {
+    assert_eq!(follow_instructions("R8, R4, R4, R8", true), 4);
 }
 
 // }}}
