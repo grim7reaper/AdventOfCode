@@ -2,10 +2,10 @@
 
 ## Part 1
 
-You arrive at _Easter Bunny Headquarters_ under cover of darkness. However, you
-left in such a rush that you forgot to use the bathroom! Fancy office buildings
-like this one usually have keypad locks on their bathrooms, so you search the
-front desk for the code.
+You arrive at **Easter Bunny Headquarters** under cover of darkness. However,
+you left in such a rush that you forgot to use the bathroom! Fancy office
+buildings like this one usually have keypad locks on their bathrooms, so you
+search the front desk for the code.
 
 "In order to improve security," the document you find says, "bathroom codes will
 no longer be written down. Instead, please memorize and follow the procedure
@@ -15,8 +15,8 @@ The document goes on to explain that each button to be pressed can be found by
 starting on the previous button and moving to adjacent buttons on the keypad:
 `U` moves up, `D` moves down, `L` moves left, and `R` moves right. Each line of
 instructions corresponds to one button, starting at the previous button (or, for
-the first line, _the "5" button_); press whatever button you're on at the end of
-each line. If a move doesn't lead to a button, ignore it.
+the first line, **the "5" button**); press whatever button you're on at the end
+of each line. If a move doesn't lead to a button, ignore it.
 
 You can't hold it much longer, so you decide to figure out the code as you walk
 to the bathroom. You picture a keypad like this:
@@ -41,14 +41,15 @@ UUUUD
 - Starting from the previous button ("1"), you move right twice (to "3") and
   then down three times (stopping at "9" after two moves and ignoring the
   third), ending up with `9`.
-- Continuing from "9", you move left, up, right, down, and left, ending with `8`.
+- Continuing from "9", you move left, up, right, down, and left, ending with
+  `8`.
 - Finally, you move up four times (stopping at "2"), then down once, ending with
   `5`.
 
 So, in this example, the bathroom code is `1985`.
 
 Your puzzle input is the instructions from the document you found at the front
-desk. What is the _bathroom code_?
+desk. What is the **bathroom code**?
 
 ## Part 2
 
@@ -80,4 +81,4 @@ instructions as above, the outcome is very different:
 So, given the actual keypad layout, the code would be `5DB3`.
 
 Using the same instructions in your puzzle input, what is the correct
-_bathroom code_?
+**bathroom code**?
