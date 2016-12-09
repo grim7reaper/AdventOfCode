@@ -1,0 +1,4 @@
+[package]
+name = "squares_with_three_sides"
+version = "0.1.0"
+authors = ["Sylvain Laperche <sylvain.laperche@gmail.com>"]
