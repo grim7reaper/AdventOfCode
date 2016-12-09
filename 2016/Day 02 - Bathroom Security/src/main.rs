@@ -82,6 +82,23 @@ lazy_static! {
                       Some('7'), Some('8'), Some('9')],
                     3, Point { x: 1, y: 1 })
     };
+
+    /// Represent the following keypad:
+    /// ┌─────────────┐
+    /// │      1      │
+    /// │   2  3  4   │
+    /// │5  6  7  8  9│
+    /// │   A  B  C   │
+    /// │      D      │
+    /// └─────────────┘
+    static ref WTF_KEYPAD: Keypad = {
+        Keypad::new(&[  None,      None,    Some('1'),   None,      None,
+                        None,    Some('2'), Some('3'), Some('4'),   None,
+                      Some('5'), Some('6'), Some('7'), Some('8'), Some('9'),
+                        None,    Some('A'), Some('B'), Some('C'),   None,
+                        None,      None,    Some('D'),   None,      None],
+                    5, Point { x: 0, y: 2 })
+    };
 }
 
 // }}}
@@ -171,6 +188,7 @@ fn main() {
 
     file.read_to_string(&mut input).unwrap();
     println!("{}", follow_instructions(&input, &SIMPLE_KEYPAD));
+    println!("{}", follow_instructions(&input, &WTF_KEYPAD));
 }
 
 // {{{ Tests
@@ -179,6 +197,12 @@ fn main() {
 fn examples_part1() {
     assert_eq!(follow_instructions("ULL\nRRDDD\nLURDL\nUUUUD", &SIMPLE_KEYPAD),
                "1985");
+}
+
+#[test]
+fn examples_part2() {
+    assert_eq!(follow_instructions("ULL\nRRDDD\nLURDL\nUUUUD", &WTF_KEYPAD),
+               "5DB3");
 }
 
 // }}}
