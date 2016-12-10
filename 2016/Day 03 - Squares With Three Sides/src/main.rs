@@ -33,19 +33,25 @@ impl FromStr for Triangle {
     /// The input string should contains three integers separated by whitespaces.
     fn from_str(s: &str) -> Result<Triangle, String> {
         let sides = parse_line(s);
-        Ok(Triangle { sides: [sides[0], sides[1], sides[2]] })
+        Triangle::new(&[sides[0], sides[1], sides[2]])
+                 .ok_or("cannot build triangle with these sides".to_string())
     }
 }
 
 impl Triangle {
-    /// Tests if a triangle is possible.
+    /// Builds a new triangle from the lengths of three sides.
     ///
-    /// A triangle is possible if the sum of any two sides is larger than the
-    /// remaining side.
-    fn is_possible(&self) -> bool {
-        self.sides[0] + self.sides[1] > self.sides[2] &&
-        self.sides[1] + self.sides[2] > self.sides[0] &&
-        self.sides[0] + self.sides[2] > self.sides[1]
+    /// This function checks that the sum of any two sides is larger than the
+    /// remaining side. If this condition is not met, the triangle cannot be
+    /// built and None is returned.
+    fn new(sides: &[i32; 3]) -> Option<Triangle> {
+        if sides[0] + sides[1] > sides[2] &&
+           sides[1] + sides[2] > sides[0] &&
+           sides[0] + sides[2] > sides[1]
+        {
+            return Some(Triangle { sides: *sides });
+        }
+        None
     }
 }
 
@@ -76,7 +82,7 @@ fn parse_line(line : &str) -> Vec<i32> {
 /// triangle3a    triangle3b    triangle3c
 /// ```
 fn parse_by_line(input: &str) -> Vec<Triangle> {
-    input.lines().map(|s| s.parse().unwrap()).collect()
+    input.lines().filter_map(|s| s.parse().ok()).collect()
 }
 
 /// Parses a list of triangles from a file organized by block.
@@ -94,22 +100,21 @@ fn parse_by_block(input: &str) -> Vec<Triangle> {
     let mut lines = 0;
     let mut rows  = input.lines().enumerate();
     // Staging buffer for triangles in construction.
-    let mut triangles = [Triangle { sides: [0, 0, 0] }; 3];
+    let mut sides = [[0, 0, 0]; 3];
 
     while let Some((side_idx, line)) = rows.next() {
         for (triangle_idx, val) in parse_line(&line).iter().enumerate() {
-            triangles[triangle_idx].sides[side_idx % 3] = *val;
+            sides[triangle_idx][side_idx % 3] = *val;
         }
         // If we got three sides, the triangles are complete.
         if side_idx % 3 == 2 {
-            res.extend(&triangles);
+            res.extend(&sides);
         }
         lines += 1;
     }
     assert!(lines % 3 == 0, "the last block is incomplete");
-    res
+    res.iter().filter_map(|sides| Triangle::new(sides)).collect()
 }
-
 
 // }}}
 
@@ -118,18 +123,15 @@ fn main() {
     let mut input = String::new();
 
     file.read_to_string(&mut input).unwrap();
-    let count = parse_by_line(&input).iter().filter(|t| t.is_possible()).count();
-    println!("{}", count);
-    let count = parse_by_block(&input).iter().filter(|t| t.is_possible()).count();
-    println!("{}", count);
+    println!("{}", parse_by_line(&input).len());
+    println!("{}", parse_by_block(&input).len());
 }
 
 // {{{ Tests
 
 #[test]
 fn examples_part1() {
-    let t = Triangle { a: 5, b: 10, c: 25 };
-    assert_eq!(t.is_possible(), false);
+    assert!(Triangle::new(&[5, 10, 25]).is_none());
 }
 
 // }}}
