@@ -23,21 +23,41 @@ use crypto::digest::Digest;
 // }}}
 
 /// Computes the password from the door ID.
-///
-/// The password is 8 characters long.
-fn decode_password(door_id : &str) -> String {
-    (0u64..).filter_map(|i| {
+fn decode_password(door_id : &str, is_in_order: bool) -> String {
+    let mut has_letter = [false; 8];
+    let mut letters : Vec<(u32, char)> = (0u64..).filter_map(|i| {
         let mut md5 = Md5::new();
 
         md5.input_str(&format!("{}{}", door_id, i));
         let hash = md5.result_str();
 
-        if hash.starts_with("00000") {
-            hash.chars().nth(5)
-        } else {
-            None
+        if !hash.starts_with("00000") {
+            return None
         }
-    }).take(8).collect()
+        if is_in_order {
+            // When the letters are already ordered:
+            // - the letter is the 6th character of the hash
+            // - we can use 0 as position (it will be ignored anyway).
+            Some((0, hash.chars().nth(5).unwrap()))
+        } else {
+            // When the letters are not ordered:
+            // - the index is the 6th character of the hash
+            // - the letter is the 7th character of the hash
+            let pos = hash.chars().nth(5).unwrap().to_digit(10).unwrap_or(10);
+            let ch  = hash.chars().nth(6).unwrap();
+
+            if pos < 8 && !has_letter[pos as usize] {
+                has_letter[pos as usize] = true;
+                Some((pos, ch))
+            } else {
+                None
+            }
+        }
+    }).take(8).collect();
+    if !is_in_order {
+        letters.sort();
+    }
+    letters.iter().map(|&(_, ch)| ch).collect()
 }
 
 fn main() {
@@ -46,14 +66,20 @@ fn main() {
 
     // The Door ID is on the first line.
     BufReader::new(&file).read_line(&mut input).unwrap();
-    println!("{}", decode_password(input.trim()));
+    println!("{}", decode_password(input.trim(), true));
+    println!("{}", decode_password(input.trim(), false));
 }
 
 // {{{ Tests
 
 #[test]
 fn examples_part1() {
-    assert_eq!(decode_password("abc"), "18f47a30");
+    assert_eq!(decode_password("abc", true), "18f47a30");
+}
+
+#[test]
+fn examples_part2() {
+    assert_eq!(decode_password("abc", false), "05ace8e3");
 }
 
 // }}}
