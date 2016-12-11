@@ -21,7 +21,7 @@ use std::str::FromStr;
 // }}}
 // {{{ Room
 
-/// Represents a room, with its encrypted name and a sector ID.
+/// Represents a room, with its name and a sector ID.
 #[derive(Debug)]
 struct Room {
     name: String,
@@ -85,10 +85,27 @@ impl Room {
                                            .map(|&(ch, _)| ch)
                                            .collect::<String>();
         if current_checksum == checksum {
-            return Some( Room { name: name.to_owned(), sector: sector })
+            return Some(
+                Room { name: decode_caesar_cipher(name, sector), sector: sector }
+            )
         }
         None
     }
+}
+
+/// Decodes a string encoded using the Caesar cipher.
+fn decode_caesar_cipher(name : &str, key: i32) -> String {
+    let shift = (key % 26) as u8;
+    // XXX: This is safe because the input string only contains ASCII characters.
+    name.replace("-", " ").chars().map(|c| {
+        if c.is_alphabetic() {
+            let cipher = c as u8 - b'a';
+            let plain  = (cipher + shift) % 26;
+            (plain + b'a') as char
+        } else {
+            c
+        }
+    }).collect::<String>()
 }
 
 // }}}
@@ -98,9 +115,12 @@ fn main() {
     let mut input = String::new();
 
     file.read_to_string(&mut input).unwrap();
-    let sum = input.lines().filter_map(|s| s.parse::<Room>().ok())
-                           .fold(0, |acc, room| acc + room.sector);
-    println!("{}", sum);
+
+    let rooms = input.lines().filter_map(|s| s.parse::<Room>().ok())
+                             .collect::<Vec<_>>();
+    println!("{}", rooms.iter().fold(0, |acc, room| acc + room.sector));
+    println!("{}", rooms.iter().find(|room| room.name.contains("northpole"))
+                               .unwrap().sector);
 }
 
 // {{{ Tests
@@ -111,6 +131,12 @@ fn examples_part1() {
     assert!("a-b-c-d-e-f-g-h-987[abcde]"  .parse::<Room>().is_ok());
     assert!("not-a-real-room-404[oarel]"  .parse::<Room>().is_ok());
     assert!("totally-real-room-200[decoy]".parse::<Room>().is_err());
+}
+
+#[test]
+fn examples_part2() {
+    assert_eq!(decode_caesar_cipher("qzmt-zixmtkozy-ivhz", 343),
+               "very encrypted name");
 }
 
 // }}}
