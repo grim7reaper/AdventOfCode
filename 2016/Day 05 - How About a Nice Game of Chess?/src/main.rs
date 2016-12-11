@@ -15,6 +15,7 @@
 use std::fs::File;
 use std::io::BufRead;
 use std::io::BufReader;
+use std::io::{self, Write};
 
 extern crate crypto;
 use crypto::md5::Md5;
@@ -22,10 +23,19 @@ use crypto::digest::Digest;
 
 // }}}
 
+/// Updates the cinematic "decrypting" animation.
+fn update_decrypting_animation(password : &[u8]) {
+    print!("\r{}", String::from_utf8_lossy(&password));
+    io::stdout().flush().unwrap();
+}
+
 /// Computes the password from the door ID.
 fn decode_password(door_id : &str, is_in_order: bool) -> String {
-    let mut has_letter = [false; 8];
-    let mut letters : Vec<(u32, char)> = (0u64..).filter_map(|i| {
+    let mut password = [b'_';  8];
+    let mut idx = 0;
+
+    update_decrypting_animation(&password);
+    let _ : Vec<char> = (0u64..).filter_map(|i| {
         let mut md5 = Md5::new();
 
         md5.input_str(&format!("{}{}", door_id, i));
@@ -35,29 +45,30 @@ fn decode_password(door_id : &str, is_in_order: bool) -> String {
             return None
         }
         if is_in_order {
-            // When the letters are already ordered:
-            // - the letter is the 6th character of the hash
-            // - we can use 0 as position (it will be ignored anyway).
-            Some((0, hash.chars().nth(5).unwrap()))
+            // When the letters are already ordered the letter is the 6th
+            // character of the hash
+            password[idx] = hash.chars().nth(5).unwrap() as u8;
+            idx += 1;
+            update_decrypting_animation(&password);
+            Some('_')
         } else {
             // When the letters are not ordered:
             // - the index is the 6th character of the hash
             // - the letter is the 7th character of the hash
             let pos = hash.chars().nth(5).unwrap().to_digit(10).unwrap_or(10);
-            let ch  = hash.chars().nth(6).unwrap();
+            let ch  = hash.chars().nth(6).unwrap() as u8;
 
-            if pos < 8 && !has_letter[pos as usize] {
-                has_letter[pos as usize] = true;
-                Some((pos, ch))
+            if pos < 8 && password[pos as usize] == b'_' {
+                password[pos as usize] = ch;
+                update_decrypting_animation(&password);
+                Some('_')
             } else {
                 None
             }
         }
     }).take(8).collect();
-    if !is_in_order {
-        letters.sort();
-    }
-    letters.iter().map(|&(_, ch)| ch).collect()
+    println!("");
+    String::from_utf8_lossy(&password).to_string()
 }
 
 fn main() {
@@ -66,8 +77,8 @@ fn main() {
 
     // The Door ID is on the first line.
     BufReader::new(&file).read_line(&mut input).unwrap();
-    println!("{}", decode_password(input.trim(), true));
-    println!("{}", decode_password(input.trim(), false));
+    decode_password(input.trim(), true);
+    decode_password(input.trim(), false);
 }
 
 // {{{ Tests
