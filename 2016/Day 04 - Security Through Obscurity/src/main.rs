@@ -67,8 +67,7 @@ impl Room {
         // Compute letter frequencies.
         let mut ch_freq = HashMap::new();
         for c in name.chars().filter(|c| *c != '-') {
-            let count = ch_freq.entry(c).or_insert(0);
-            *count += 1;
+            *ch_freq.entry(c).or_insert(0) += 1;
         }
         // Sort by:
         // - descending frequency.
@@ -105,7 +104,7 @@ fn decode_caesar_cipher(name : &str, key: i32) -> String {
         } else {
             c
         }
-    }).collect::<String>()
+    }).collect()
 }
 
 // }}}
