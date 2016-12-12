@@ -7,8 +7,8 @@ only partially jammed, and protocol in situations like this is to switch to a
 simple _repetition code_ to get the message through.
 
 In this model, the same message is sent repeatedly. You've recorded the
-repeating message signal (your puzzle input), but the data seems quite corrupted
-- almost too badly to recover. **Almost**.
+repeating message signal (your puzzle input), but the data seems quite
+corrupted - almost too badly to recover. **Almost**.
 
 All you need to do is figure out which character is most frequent for each
 position. For example, suppose you had recorded the following messages:
