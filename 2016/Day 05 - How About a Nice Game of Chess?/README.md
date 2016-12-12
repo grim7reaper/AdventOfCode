@@ -1,6 +1,6 @@
 # --- Day 5: How About a Nice Game of Chess? ---
 
-## Part 1
+## --- Part One ---
 
 You are faced with a security door designed by Easter Bunny engineers that seem
 to have acquired most of their security knowledge by watching _hacking movies_.
@@ -28,7 +28,7 @@ password is `18f47a30`.
 
 Given the actual Door ID, **what is the password**?
 
-## Part 2
+## --- Part Two ---
 
 As the door slides open, you are presented with a second door that uses a
 slightly more inspired security mechanism. Clearly unimpressed by the last

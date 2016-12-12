@@ -1,6 +1,6 @@
 # --- Day 1: No Time for a Taxicab ---
 
-## Part 1
+## --- Part One ---
 
 Santa's sleigh uses a very high-precision clock to guide its movements, and the
 clock's oscillator is regulated by stars. Unfortunately, the stars have been
@@ -36,7 +36,7 @@ For example:
 
 **How many blocks away** is Easter Bunny HQ?
 
-## Part 2
+## --- Part Two ---
 
 Then, you notice the instructions continue on the back of the Recruiting
 Document. Easter Bunny HQ is actually at the *first location you visit twice**.

@@ -1,6 +1,6 @@
 # --- Day 3: Squares With Three Sides ---
 
-## Part 1
+## --- Part One ---
 
 Now that you can think clearly, you move deeper into the labyrinth of hallways
 and office furniture that makes up this part of Easter Bunny HQ. This must be a
@@ -19,7 +19,7 @@ not larger than `25`.
 
 In your puzzle input, **how many** of the listed triangles are **possible**?
 
-## Part 2
+## --- Part Two ---
 
 Now that you've helpfully marked up their design documents, it occurs to you
 that triangles are specified in groups of three vertically. Each set of three
