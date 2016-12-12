@@ -22,7 +22,7 @@ use std::io::Read;
 // {{{ Keypad
 
 /// Represents a location on the keypad.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug)]
 struct Point {
     x:   i8,
     y:   i8,
@@ -105,7 +105,7 @@ lazy_static! {
 // {{{ Finger
 
 /// Represents the finger's location on the keypad.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[derive(Debug)]
 struct Finger {
     position: Point,
 }
@@ -143,7 +143,7 @@ impl Finger {
 /// Represents a movement of the finger.
 ///
 /// The movement is relative to the current finger's position.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[derive(Debug)]
 enum Move {
     Up,
     Down,

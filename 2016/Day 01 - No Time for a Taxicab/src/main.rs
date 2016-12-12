@@ -22,7 +22,7 @@ use std::str::FromStr;
 // {{{ Move
 
 /// Represents a turn direction.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug)]
 enum Turn {
     Left,
     Right,
@@ -31,7 +31,7 @@ enum Turn {
 /// Represents a movement instruction.
 ///
 /// i.e a turn direction and how far to walk).
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[derive(Debug)]
 struct Move {
     turn:  Turn,
     steps: i32,
@@ -61,7 +61,7 @@ impl FromStr for Move {
 // {{{ Point
 
 /// Represents an agent working for Santa.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[derive(Debug)]
 struct Agent {
     position:  Point,
     direction: Direction,
@@ -105,7 +105,7 @@ impl Agent {
 }
 
 /// Represents a point's orientation.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug)]
 enum Direction {
     North,
     East,

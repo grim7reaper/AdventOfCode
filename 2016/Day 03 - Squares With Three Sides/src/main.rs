@@ -20,7 +20,7 @@ use std::str::FromStr;
 // {{{ Triangle
 
 /// A triangle, represented by the lengths of its three sides.
-#[derive(Clone, Copy, Debug)]
+#[derive(Debug)]
 struct Triangle {
     sides: [i32; 3],
 }
