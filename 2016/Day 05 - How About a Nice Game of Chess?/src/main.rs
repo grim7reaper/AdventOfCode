@@ -30,24 +30,32 @@ fn update_decrypting_animation(password : &[u8]) {
 }
 
 /// Computes the password from the door ID.
-fn decode_password(door_id : &str, is_in_order: bool) -> String {
+fn decode_password(door_id : &[u8], is_in_order: bool) -> String {
+    let hexdigit = [b'0', b'1', b'2', b'3', b'4', b'5', b'6', b'7',
+                    b'8', b'9', b'a', b'b', b'c', b'd', b'e', b'f'];
     let mut password = [b'_';  8];
     let mut idx = 0;
+    let mut md5 = Md5::new();
 
     update_decrypting_animation(&password);
     let _ : Vec<char> = (0u64..).filter_map(|i| {
-        let mut md5 = Md5::new();
+        let mut hash = [0; 16]; // A MD5 digest is 128 bits (i.e 16 bytes).
 
-        md5.input_str(&format!("{}{}", door_id, i));
-        let hash = md5.result_str();
+        md5.input(door_id);
+        md5.input(i.to_string().as_bytes());
+        md5.result(&mut hash);
+        md5.reset();
 
-        if !hash.starts_with("00000") {
+        // As one byte == two hex character, we have to tests the 2.5 bytes (two
+        // whole bytes + the 4 high bits of the third byte) to see if the digest
+        // starts with 5 zeroes.
+        if (hash[0] | hash[1] | (hash[2] >> 4)) != 0 {
             return None
         }
         if is_in_order {
             // When the letters are already ordered the letter is the 6th
             // character of the hash
-            password[idx] = hash.chars().nth(5).unwrap() as u8;
+            password[idx] = hexdigit[(hash[2] & 0x0f) as usize];
             idx += 1;
             update_decrypting_animation(&password);
             Some('_')
@@ -55,8 +63,8 @@ fn decode_password(door_id : &str, is_in_order: bool) -> String {
             // When the letters are not ordered:
             // - the index is the 6th character of the hash
             // - the letter is the 7th character of the hash
-            let pos = hash.chars().nth(5).unwrap().to_digit(10).unwrap_or(10);
-            let ch  = hash.chars().nth(6).unwrap() as u8;
+            let pos = hash[2] & 0x0f;
+            let ch  = hexdigit[(hash[3] >> 4) as usize];
 
             if pos < 8 && password[pos as usize] == b'_' {
                 password[pos as usize] = ch;
@@ -77,20 +85,21 @@ fn main() {
 
     // The Door ID is on the first line.
     BufReader::new(&file).read_line(&mut input).unwrap();
-    decode_password(input.trim(), true);
-    decode_password(input.trim(), false);
+    let door_id = input.trim().as_bytes();
+    decode_password(door_id, true);
+    decode_password(door_id, false);
 }
 
 // {{{ Tests
 
 #[test]
 fn examples_part1() {
-    assert_eq!(decode_password("abc", true), "18f47a30");
+    assert_eq!(decode_password("abc".as_bytes(), true), "18f47a30");
 }
 
 #[test]
 fn examples_part2() {
-    assert_eq!(decode_password("abc", false), "05ace8e3");
+    assert_eq!(decode_password("abc".as_bytes(), false), "05ace8e3");
 }
 
 // }}}
