@@ -82,11 +82,27 @@ impl IPv7 {
         self.supernets.iter().any(|&(a, z)| has_abba(&self.address[a..z])) &&
        !self.hypernets.iter().any(|&(a, z)| has_abba(&self.address[a..z]))
     }
+
+    /// Test if the IP supports SSL.
+    ///
+    /// An IP supports SSL if it has an ABA, anywhere in the supernet sequences,
+    /// and a corresponding BAB, anywhere in the hypernet sequences.
+    fn has_ssl_support(&self) -> bool {
+        let abas = self.supernets.iter().fold(Vec::new(), |mut acc, &(a, z)| {
+            acc.extend(collect_aba(&self.address[a..z]));
+            acc
+        });
+        abas.iter().any(|aba| {
+            self.hypernets.iter().any(|&(a, z)| {
+                has_matching_bab_for(&self.address[a..z], aba)
+            })
+        })
+    }
 }
 
 // {{{ ABBA helpers
 
-/// Test if `s` is an ABBA.
+/// Test if `s` is an ABBA (Autonomous Bridge Bypass Annotation).
 ///
 /// An ABBA is any four-character sequence which consists of a pair of two
 /// different characters followed by the reverse of that pair, such as xyyx or
@@ -104,6 +120,31 @@ pub fn has_abba(s: &[u8]) -> bool {
 }
 
 // }}}
+// {{{ ABA/BAB helpers
+
+/// Test if `s` is an ABA (Area-Broadcast Accessor).
+///
+/// An ABA is any three-character sequence which consists of the same character
+/// twice with a different character between them, such as `xyx` or `aba`.
+pub fn is_aba(s: &[u8]) -> bool {
+    s.len() == 3    &&
+    s[0]    == s[2] &&
+    s[0]    != s[1]
+}
+
+/// Returns a list of ABAs contained in `s`.
+pub fn collect_aba(s: &[u8]) -> Vec<&[u8]> {
+    s.windows(3).filter(|candidate| is_aba(candidate)).collect()
+}
+
+/// Test if `s` contains an BAB matching the given ABA.
+pub fn has_matching_bab_for(s: &[u8], aba: &[u8]) -> bool {
+    assert!(is_aba(aba));
+    let bab = [ aba[1], aba[0], aba[1] ];
+    s.windows(3).any(|candidate| candidate == bab)
+}
+
+// }}}
 // }}}
 
 fn main() {
@@ -114,7 +155,10 @@ fn main() {
     let ips = input.lines()
                    .filter_map(|ip| ip.parse::<IPv7>().ok())
                    .collect::<Vec<_>>();
-    println!("{}", ips.iter().filter(|ip| ip.has_tls_support()).count());
+    println!("{} IPs support TLS",
+             ips.iter().filter(|ip| ip.has_tls_support()).count());
+    println!("{} IPs support SSL",
+             ips.iter().filter(|ip| ip.has_ssl_support()).count());
 }
 
 // {{{ Tests
@@ -129,6 +173,14 @@ fn examples_part1() {
                false);
     assert_eq!("ioxxoj[asdfgh]zxcvbn".parse::<IPv7>().unwrap().has_tls_support(),
                true);
+}
+
+#[test]
+fn examples_part2() {
+    assert_eq!("aba[bab]xyz".parse::<IPv7>().unwrap().has_ssl_support(),   true);
+    assert_eq!("xyx[xyx]xyx".parse::<IPv7>().unwrap().has_ssl_support(),   false);
+    assert_eq!("aaa[kek]eke".parse::<IPv7>().unwrap().has_ssl_support(),   true);
+    assert_eq!("zazbz[bzb]cdb".parse::<IPv7>().unwrap().has_ssl_support(), true);
 }
 
 // }}}
