@@ -22,52 +22,52 @@ use std::str::FromStr;
 /// An IPv7 address.
 #[derive(Debug)]
 struct IPv7 {
-    address:     Vec<u8>,
-    annotations: Vec<(usize, usize)>,
-    hypernets:   Vec<(usize, usize)>,
+    address:   Vec<u8>,
+    supernets: Vec<(usize, usize)>,
+    hypernets: Vec<(usize, usize)>,
 }
 
 impl FromStr for IPv7 {
     type Err = String;
 
     fn from_str(s: &str) -> Result<IPv7, String> {
-        let mut ann = Vec::new();
-        let mut net = Vec::new();
+        let mut s_net = Vec::new();
+        let mut h_net = Vec::new();
         let mut bytes = s.as_bytes().iter();
-        let mut begin  = 0;     // Start of the current slice.
-        let mut end    = 0;     // End of the current slice.
-        let mut in_net = false; // Are we in an hypernet sequence?
+        let mut begin = 0;     // Start of the current slice.
+        let mut end   = 0;     // End of the current slice.
+        let mut in_hypernet = false; // Are we in an hypernet sequence?
 
         while let Some(b) = bytes.next() {
             end += 1;
             if *b == b'[' {
-                assert_eq!(in_net, false);
-                in_net = true;
-                ann.push((begin, end-1));
+                assert_eq!(in_hypernet, false);
+                in_hypernet = true;
+                s_net.push((begin, end-1));
                 begin = end;
             } else
             if *b == b']' {
-                assert_eq!(in_net, true);
-                in_net = false;
-                net.push((begin, end-1));
+                assert_eq!(in_hypernet, true);
+                in_hypernet = false;
+                h_net.push((begin, end-1));
                 begin = end;
             }
         }
-        // Check for a trailing annotation.
+        // Check for a trailing supernet.
         if end - begin != 0 {
-            ann.push((begin, end));
+            s_net.push((begin, end));
         }
 
-        if ann.is_empty() {
-            Err("no annotations".to_owned())
+        if s_net.is_empty() {
+            Err("no supernet sequences".to_owned())
         } else
-        if net.is_empty() {
+        if h_net.is_empty() {
             Err("no hypernet sequences".to_owned())
         } else {
             Ok(IPv7 {
-                address:     s.to_owned().into_bytes(),
-                annotations: ann,
-                hypernets:   net
+                address:   s.to_owned().into_bytes(),
+                supernets: s_net,
+                hypernets: h_net
             })
         }
     }
@@ -76,11 +76,11 @@ impl FromStr for IPv7 {
 impl IPv7 {
     /// Test if the IP supports TLS.
     ///
-    /// An IP supports TLS if it has an ABBA in its annotations, and no ABBA in
+    /// An IP supports TLS if it has an ABBA in its supernets, and no ABBA in
     /// its hypernet sequences.
     fn has_tls_support(&self) -> bool {
-        self.annotations.iter().any(|&(a, z)| has_abba(&self.address[a..z])) &&
-       !self.hypernets  .iter().any(|&(a, z)| has_abba(&self.address[a..z]))
+        self.supernets.iter().any(|&(a, z)| has_abba(&self.address[a..z])) &&
+       !self.hypernets.iter().any(|&(a, z)| has_abba(&self.address[a..z]))
     }
 }
 
