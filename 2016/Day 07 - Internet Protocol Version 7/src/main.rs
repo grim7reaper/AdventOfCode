@@ -148,16 +148,16 @@ pub fn has_matching_bab_for(s: &[u8], aba: &[u8]) -> bool {
 // }}}
 
 fn main() {
-    let mut file  = File::open("input.txt").unwrap();
+    let mut file  = File::open("input.txt").expect("cannot open input.txt");
     let mut input = String::new();
 
     file.read_to_string(&mut input).unwrap();
     let ips = input.lines()
                    .filter_map(|ip| ip.parse::<IPv7>().ok())
                    .collect::<Vec<_>>();
-    println!("{} IPs support TLS",
+    println!("There are {} IPs with TLS support.",
              ips.iter().filter(|ip| ip.has_tls_support()).count());
-    println!("{} IPs support SSL",
+    println!("There are {} IPs with SSL support.",
              ips.iter().filter(|ip| ip.has_ssl_support()).count());
 }
 

@@ -119,12 +119,14 @@ fn parse_by_block(input: &str) -> Vec<Triangle> {
 // }}}
 
 fn main() {
-    let mut file  = File::open("input.txt").unwrap();
+    let mut file  = File::open("input.txt").expect("cannot open input.txt");
     let mut input = String::new();
 
     file.read_to_string(&mut input).unwrap();
-    println!("{}", parse_by_line(&input).len());
-    println!("{}", parse_by_block(&input).len());
+    println!("Grouped by lines, there are {} valid triangles.",
+             parse_by_line(&input).len());
+    println!("Grouped by columns, there are {} valid triangles.",
+             parse_by_block(&input).len());
 }
 
 // {{{ Tests

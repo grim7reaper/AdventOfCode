@@ -166,15 +166,17 @@ fn follow_instructions(instructions: &str, has_read_all: bool) -> i32{
 // }}}
 
 fn main() {
-    let file = File::open("input.txt").unwrap();
+    let file = File::open("input.txt").expect("cannot open input.txt");
     let mut input = String::new();
 
     // All the instructions are on the first line.
     BufReader::new(&file).read_line(&mut input).unwrap();
     assert!(!input.is_empty());
 
-    println!("Part 1: {}", follow_instructions(&input, false));
-    println!("Part 2: {}", follow_instructions(&input, true));
+    println!("The Easter Bunny Headquarters seems to be {} blocks away.",
+             follow_instructions(&input, false));
+    println!("In fact, the Easter Bunny Headquarters is {} blocks away.",
+             follow_instructions(&input, true));
 }
 
 // {{{ Tests

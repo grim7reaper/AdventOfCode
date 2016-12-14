@@ -183,12 +183,14 @@ fn follow_instructions(instructions: &str, keypad: &Keypad) -> String {
 }
 
 fn main() {
-    let mut file  = File::open("input.txt").unwrap();
+    let mut file  = File::open("input.txt").expect("cannot open input.txt");
     let mut input = String::new();
 
     file.read_to_string(&mut input).unwrap();
-    println!("{}", follow_instructions(&input, &SIMPLE_KEYPAD));
-    println!("{}", follow_instructions(&input, &WTF_KEYPAD));
+    println!("The bathroom code should be {}.",
+             follow_instructions(&input, &SIMPLE_KEYPAD));
+    println!("Ho wait! On this crazy keypad, the code is {}.",
+             follow_instructions(&input, &WTF_KEYPAD));
 }
 
 // {{{ Tests

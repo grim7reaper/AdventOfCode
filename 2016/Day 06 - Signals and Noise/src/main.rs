@@ -82,14 +82,16 @@ fn compute_consensus<F>(messages: &[&str], init: i32, select: F) -> String
 // }}}
 
 fn main() {
-    let mut file  = File::open("input.txt").unwrap();
+    let mut file  = File::open("input.txt").expect("cannot open input.txt");
     let mut input = String::new();
 
     file.read_to_string(&mut input).unwrap();
     let messages = input.lines().collect::<Vec<_>>();
 
-    println!("{:?}", compute_consensus_most_common(&messages));
-    println!("{:?}", compute_consensus_least_common(&messages));
+    println!("The error-corrected message (simple repetition code) is {:?}.",
+             compute_consensus_most_common(&messages));
+    println!("The error-corrected message (modified repetition code) is {:?}.",
+             compute_consensus_least_common(&messages));
 }
 
 // {{{ Tests

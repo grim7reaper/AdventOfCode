@@ -110,16 +110,18 @@ fn decode_caesar_cipher(name : &str, key: i32) -> String {
 // }}}
 
 fn main() {
-    let mut file  = File::open("input.txt").unwrap();
+    let mut file  = File::open("input.txt").expect("cannot open input.txt");
     let mut input = String::new();
 
     file.read_to_string(&mut input).unwrap();
 
     let rooms = input.lines().filter_map(|s| s.parse::<Room>().ok())
                              .collect::<Vec<_>>();
-    println!("{}", rooms.iter().fold(0, |acc, room| acc + room.sector));
-    println!("{}", rooms.iter().find(|room| room.name.contains("northpole"))
-                               .unwrap().sector);
+    println!("The sum of the sector IDs of the real room is {}.",
+             rooms.iter().fold(0, |acc, room| acc + room.sector));
+    println!("North Pole objects are stored in the sector {}.",
+             rooms.iter().find(|room| room.name.contains("northpole"))
+                  .unwrap().sector);
 }
 
 // {{{ Tests

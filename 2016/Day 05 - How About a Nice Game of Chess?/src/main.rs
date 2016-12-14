@@ -24,20 +24,21 @@ use crypto::digest::Digest;
 // }}}
 
 /// Updates the cinematic "decrypting" animation.
-fn update_decrypting_animation(password : &[u8]) {
-    print!("\r{}", String::from_utf8_lossy(&password));
+fn update_decrypting_animation(door: &str,  password : &[u8]) {
+    print!("\rThe password of the {} is {}",
+           door, String::from_utf8_lossy(&password));
     io::stdout().flush().unwrap();
 }
 
 /// Computes the password from the door ID.
-fn decode_password(door_id : &[u8], is_in_order: bool) -> String {
+fn decode_password(door: &str, door_id : &[u8], is_in_order: bool) -> String {
     let hexdigit = [b'0', b'1', b'2', b'3', b'4', b'5', b'6', b'7',
                     b'8', b'9', b'a', b'b', b'c', b'd', b'e', b'f'];
     let mut password = [b'_';  8];
     let mut idx = 0;
     let mut md5 = Md5::new();
 
-    update_decrypting_animation(&password);
+    update_decrypting_animation(door, &password);
     let _ : Vec<char> = (0u64..).filter_map(|i| {
         let mut hash = [0; 16]; // A MD5 digest is 128 bits (i.e 16 bytes).
 
@@ -57,7 +58,7 @@ fn decode_password(door_id : &[u8], is_in_order: bool) -> String {
             // character of the hash
             password[idx] = hexdigit[(hash[2] & 0x0f) as usize];
             idx += 1;
-            update_decrypting_animation(&password);
+            update_decrypting_animation(door, &password);
             Some('_')
         } else {
             // When the letters are not ordered:
@@ -68,7 +69,7 @@ fn decode_password(door_id : &[u8], is_in_order: bool) -> String {
 
             if pos < 8 && password[pos as usize] == b'_' {
                 password[pos as usize] = ch;
-                update_decrypting_animation(&password);
+                update_decrypting_animation(door, &password);
                 Some('_')
             } else {
                 None
@@ -80,14 +81,14 @@ fn decode_password(door_id : &[u8], is_in_order: bool) -> String {
 }
 
 fn main() {
-    let file = File::open("input.txt").unwrap();
+    let file = File::open("input.txt").expect("cannot open input.txt");
     let mut input = String::new();
 
     // The Door ID is on the first line.
     BufReader::new(&file).read_line(&mut input).unwrap();
     let door_id = input.trim().as_bytes();
-    decode_password(door_id, true);
-    decode_password(door_id, false);
+    decode_password("first door",  door_id, true);
+    decode_password("second door", door_id, false);
 }
 
 // {{{ Tests
