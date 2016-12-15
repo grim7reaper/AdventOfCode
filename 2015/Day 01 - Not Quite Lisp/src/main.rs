@@ -36,7 +36,7 @@ fn main() {
     BufReader::new(&file).read_line(&mut input).unwrap();
     assert!(!input.is_empty());
 
-    println!("{}", compute_floor(&input.trim()));
+    println!("Santa should go to the floor {}", compute_floor(&input.trim()));
 }
 
 // {{{ Tests
