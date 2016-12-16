@@ -2,15 +2,6 @@
 
 ## --- Part One ---
 
-Santa's sleigh uses a very high-precision clock to guide its movements, and the
-clock's oscillator is regulated by stars. Unfortunately, the stars have been
-stolen… by the Easter Bunny. To save Christmas, Santa needs you to retrieve all
-_fifty stars_ by December 25th.
-
-Collect stars by solving puzzles. Two puzzles will be made available on each day
-in the advent calendar; the second puzzle is unlocked when you complete the
-first. Each puzzle grants _one star_. Good luck!
-
 You're airdropped near **Easter Bunny Headquarters** in a city somewhere.
 "Near", unfortunately, is as close as you can get - the instructions on the
 Easter Bunny Recruiting Document the Elves intercepted start here, and nobody
