@@ -56,6 +56,23 @@ impl Present {
         let smallest = *areas.iter().min().unwrap();
         areas.iter().map(|x| 2 * x).sum::<i32>() + smallest
     }
+
+    /// Computes the ribbon length required to wrap a present (in feet).
+    ///
+    /// The ribbon length required for a present is the shortest distance around
+    /// its sides, or the smallest perimeter of any one face.
+    /// Each present also requires a bow made out of ribbon as well; the feet of
+    /// ribbon required for the perfect bow is equal to the cubic feet of volume
+    /// of the present.
+    fn ribbon_length(&self) -> i32 {
+        let perimeters = [
+            2*self.sides[0] + 2*self.sides[1],
+            2*self.sides[1] + 2*self.sides[2],
+            2*self.sides[0] + 2*self.sides[2]
+        ];
+        let smallest = *perimeters.iter().min().unwrap();
+        self.sides.iter().product::<i32>() + smallest
+    }
 }
 
 // }}}
@@ -65,23 +82,27 @@ fn main() {
     let mut input = String::new();
 
     file.read_to_string(&mut input).unwrap();
-    let total = input.lines().map(|l| l.parse::<Present>().unwrap())
-                             .map(|p| p.package_area())
-                             .sum::<i32>();
-    println!("{}", total);
+    let (paper, ribbon) = input.lines()
+                               .map(|l| l.parse::<Present>().unwrap())
+                               .map(|p| (p.package_area(), p.ribbon_length()))
+                               .fold((0, 0), |sum, v| (sum.0+v.0, sum.1+v.1));
+    println!("The elves should order {} square feet of wrapping paper.", paper);
+    println!("The elves should order {} feet of ribbon.", ribbon);
 }
 
 // {{{ Tests
 
 #[test]
-fn examples_part1() {
+fn examples() {
     let present = "2x3x4".parse::<Present>();
     assert!(present.is_ok());
-    assert_eq!(present.unwrap().package_area(), 58);
+    assert_eq!(present.as_ref().unwrap().package_area(),  58);
+    assert_eq!(present.as_ref().unwrap().ribbon_length(), 34);
 
     let present = "1x1x10".parse::<Present>();
     assert!(present.is_ok());
-    assert_eq!(present.unwrap().package_area(), 43);
+    assert_eq!(present.as_ref().unwrap().package_area(),  43);
+    assert_eq!(present.as_ref().unwrap().ribbon_length(), 14);
 }
 
 // }}}
