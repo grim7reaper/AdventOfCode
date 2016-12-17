@@ -3,15 +3,18 @@
 ## --- Part One ---
 
 You are faced with a security door designed by Easter Bunny engineers that seem
-to have acquired most of their security knowledge by watching _hacking movies_.
+to have acquired most of their security knowledge by watching
+[hacking](https://en.wikipedia.org/wiki/Hackers_(film))
+[movies](https://en.wikipedia.org/wiki/WarGames).
 
 The **eight-character password** for the door is generated one character at a
-time by finding the _MD5_ hash of some Door ID (your puzzle input) and an
-increasing integer index (starting with `0`).
+time by finding the [MD5](https://en.wikipedia.org/wiki/MD5) hash of some Door
+ID (your puzzle input) and an increasing integer index (starting with `0`).
 
-A hash indicates the **next character** in the password if its _hexadecimal_
-representation starts with **five zeroes**. If it does, the sixth character in
-the hash is the next character of the password.
+A hash indicates the **next character** in the password if its
+[hexadecimal](https://en.wikipedia.org/wiki/Hexadecimal) representation starts
+with **five zeroes**. If it does, the sixth character in the hash is the next
+character of the password.
 
 For example, if the Door ID is `abc`:
 
@@ -33,7 +36,8 @@ Given the actual Door ID, **what is the password**?
 As the door slides open, you are presented with a second door that uses a
 slightly more inspired security mechanism. Clearly unimpressed by the last
 version (in what movie is the password decrypted **in order**?!), the Easter
-Bunny engineers have worked out _a better solution_.
+Bunny engineers have worked out [a better
+solution](https://www.youtube.com/watch?v=NHWjlCaIrQo&t=25).
 
 Instead of simply filling in the password from left to right, the hash now also
 indicates the **position** within the password to fill. You still look for

@@ -2,8 +2,9 @@
 
 ## --- Part One ---
 
-While snooping around the local network of EBHQ, you compile a list of _IP
-addresses_ (they're IPv7, of course; _IPv6_ is much too limited). You'd like to
+While snooping around the local network of EBHQ, you compile a list of [IP
+addresses](https://en.wikipedia.org/wiki/IP_address) (they're IPv7, of course;
+[IPv6](https://en.wikipedia.org/wiki/IPv6) is much too limited). You'd like to
 figure out which IPs support **TLS** (transport-layer snooping).
 
 An IP supports TLS if it has an Autonomous Bridge Bypass Annotation, or **ABBA**.

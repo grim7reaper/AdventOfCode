@@ -29,10 +29,11 @@ What is the **sum of the sector IDs of the real rooms**?
 With all the decoy data out of the way, it's time to decrypt this list and get
 moving.
 
-The room names are encrypted by a state-of-the-art _shift cipher_, which is
-nearly unbreakable without the right software. However, the information kiosk
-designers at Easter Bunny HQ were not expecting to deal with a master
-cryptographer like yourself.
+The room names are encrypted by a state-of-the-art [shift
+cipher](https://en.wikipedia.org/wiki/Caesar_cipher), which is nearly
+unbreakable without the right software. However, the information kiosk designers
+at Easter Bunny HQ were not expecting to deal with a master cryptographer like
+yourself.
 
 To decrypt a room name, rotate each letter forward through the alphabet a number
 of times equal to the room's sector ID. `A` becomes `B`, `B` becomes `C`, `Z`
