@@ -68,30 +68,42 @@ impl Point {
 
 // }}}
 
-/// Moves Santa according to the elf's directions, and keep track of the visited
-/// houses.
-fn follow_instructions(instructions: &str, houses: &mut HashSet<Point>) {
-    let mut santa = Point { x: 0, y: 0 };
+/// Moves Santa's crew according to the elf's directions, and keep track of the
+/// visited houses.
+fn follow_instructions(instructions: &str,
+                       santa_crew:   &mut[Point],
+                       houses:       &mut HashSet<Point>) {
+    // Everyone starts at the same position, we only need to insert the first.
+    houses.insert(santa_crew[0]);
 
-    houses.insert(santa);
-    for dir in instructions.chars().map(|c| Direction::from(c)) {
-        santa.mv(dir);
-        houses.insert(santa);
+    let instructions = instructions.chars().map(|c| Direction::from(c));
+    for (crew, direction) in instructions.enumerate() {
+        let worker_idx = crew % santa_crew.len();
+        let worker     = &mut santa_crew[worker_idx];
+        worker.mv(direction);
+        houses.insert(*worker);
     }
 }
-
 
 fn main() {
     let file = File::open("input.txt").expect("cannot open input.txt");
     let mut input  = String::new();
-    let mut houses = HashSet::new();
 
     // All the instructions are on the first line.
     BufReader::new(&file).read_line(&mut input).unwrap();
     assert!(!input.is_empty());
 
-    follow_instructions(&input, &mut houses);
-    println!("{} houses received at least one present.", houses.len());
+    let mut houses = HashSet::new();
+    let mut santa  = [Point { x: 0, y: 0 }; 1];
+    follow_instructions(&input, &mut santa, &mut houses);
+    println!("{} houses received at least one present from Santa.",
+             houses.len());
+
+    houses.clear();
+    let mut santa_and_bot = [Point { x: 0, y: 0 }; 2];
+    follow_instructions(&input, &mut santa_and_bot, &mut houses);
+    println!("{} houses received at least one present from Santa's crew.",
+             houses.len());
 }
 
 // {{{ Tests
@@ -99,16 +111,37 @@ fn main() {
 #[test]
 fn examples_part1() {
     let mut houses = HashSet::new();
-    follow_instructions(">", &mut houses);
+    let mut santa  = [Point { x: 0, y: 0 }; 1];
+    follow_instructions(">", &mut santa, &mut houses);
     assert_eq!(houses.len(), 2);
 
     houses.clear();
-    follow_instructions("^>v<", &mut houses);
+    let mut santa  = [Point { x: 0, y: 0 }; 1];
+    follow_instructions("^>v<", &mut santa, &mut houses);
     assert_eq!(houses.len(), 4);
 
     houses.clear();
-    follow_instructions("^v^v^v^v^v", &mut houses);
+    let mut santa  = [Point { x: 0, y: 0 }; 1];
+    follow_instructions("^v^v^v^v^v", &mut santa, &mut houses);
     assert_eq!(houses.len(), 2);
+}
+
+#[test]
+fn examples_part2() {
+    let mut houses     = HashSet::new();
+    let mut santa_crew = [Point { x: 0, y: 0 }; 2];
+    follow_instructions("^>", &mut santa_crew, &mut houses);
+    assert_eq!(houses.len(), 3);
+
+    houses.clear();
+    let mut santa_crew = [Point { x: 0, y: 0 }; 2];
+    follow_instructions("^>v<", &mut santa_crew, &mut houses);
+    assert_eq!(houses.len(), 3);
+
+    houses.clear();
+    let mut santa_crew = [Point { x: 0, y: 0 }; 2];
+    follow_instructions("^v^v^v^v^v", &mut santa_crew, &mut houses);
+    assert_eq!(houses.len(), 11);
 }
 
 // }}}
