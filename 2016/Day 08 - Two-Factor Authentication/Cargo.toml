@@ -1,0 +1,7 @@
+[package]
+name = "two_factor_authentication"
+version = "0.1.0"
+authors = ["Sylvain Laperche <sylvain.laperche@gmail.com>"]
+
+[dependencies]
+nom = "2.0.1"
