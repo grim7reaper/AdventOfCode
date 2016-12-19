@@ -311,6 +311,7 @@ fn main() {
     execute(&mut screen, &instructions);
     println!("After swiping the card, there are {} pixels lit on the screen.",
              screen.pixels_lit());
+    println!("{}", screen);
 }
 
 // {{{ Tests
