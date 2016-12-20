@@ -17,7 +17,6 @@ use std::io::Read;
 
 #[macro_use]
 extern crate nom;
-use nom::digit;
 
 // }}}
 // {{{ Screen
@@ -229,61 +228,80 @@ mod screen {
 // }}}
 // {{{ Instruction
 
-#[derive(Clone, Copy, Debug)]
-pub enum Instruction {
-    TurnOn       { width: u16, height: u16 },
-    RotateRow    { row: usize, shift: usize},
-    RotateColumn { col: usize, shift: usize},
+mod instruction {
+    use std::str;
+    use nom;
+
+    #[derive(Clone, Copy, Debug)]
+    pub enum Instruction {
+        TurnOn       { width: u16, height: u16 },
+        RotateRow    { row: usize, shift: usize},
+        RotateColumn { col: usize, shift: usize},
+    }
+
+    impl str::FromStr for Instruction {
+        type Err = nom::ErrorKind;
+
+        /// Builds an `Instruction` from a string.
+        fn from_str(s: &str) -> Result<Instruction, nom::ErrorKind> {
+            parse_instruction(s.as_bytes()).to_result()
+        }
+    }
+
+    // {{{ Parser
+
+    /// Parse the instruction to turn on a rectangle of pixels.
+    /// The input string should match one the regexp: ^rect \d+x\d+$
+    named!(turn_on<&[u8], (u16, u16)>,
+        do_parse!(
+           tag!("rect ")                                >>
+           width: map_res!(nom::digit, str::from_utf8)  >>
+           tag!("x")                                    >>
+           height: map_res!(nom::digit, str::from_utf8) >>
+           (width.parse::<u16>().unwrap(), height.parse::<u16>().unwrap())
+       )
+    );
+
+    /// Parse the instruction to rotate a row.
+    /// The input string should match one the regexp: ^rotate row y=\d+ by \d+$
+    named!(rotate_row<&[u8], (usize, usize)>,
+        do_parse!(
+           tag!("rotate row y=")                       >>
+           row: map_res!(nom::digit, str::from_utf8)   >>
+           tag!(" by ")                                >>
+           shift: map_res!(nom::digit, str::from_utf8) >>
+           (row.parse::<usize>().unwrap(), shift.parse::<usize>().unwrap())
+        )
+    );
+
+    /// Parse the instruction to rotate a column.
+    /// The input string should match one the regexp: ^rotate column x=\d+ by \d+$
+    named!(rotate_col<&[u8], (usize, usize)>,
+        do_parse!(
+           tag!("rotate column x=")                    >>
+           col: map_res!(nom::digit, str::from_utf8)   >>
+           tag!(" by ")                                >>
+           shift: map_res!(nom::digit, str::from_utf8) >>
+           (col.parse::<usize>().unwrap(), shift.parse::<usize>().unwrap())
+        )
+    );
+
+    /// Parse an instruction.
+    named!(parse_instruction<&[u8], Instruction>,
+        alt!(
+            turn_on    => {|(w, h)| Instruction::TurnOn { width: w, height: h }}
+          | rotate_row => {|(r, s)| Instruction::RotateRow    { row: r, shift: s }}
+          | rotate_col => {|(c, s)| Instruction::RotateColumn { col: c, shift: s }}
+        )
+    );
+
+    // }}}
 }
-
-/// Parse the instruction to turn on a rectangle of pixels.
-/// The input string should match one the regexp: ^rect \d+x\d+$
-named!(turn_on<&[u8], (u16, u16)>,
-    do_parse!(
-       tag!("rect ")                                >>
-       width: map_res!(digit, std::str::from_utf8)  >>
-       tag!("x")                                    >>
-       height: map_res!(digit, std::str::from_utf8) >>
-       (width.parse::<u16>().unwrap(), height.parse::<u16>().unwrap())
-   )
-);
-
-/// Parse the instruction to rotate a row.
-/// The input string should match one the regexp: ^rotate row y=\d+ by \d+$
-named!(rotate_row<&[u8], (usize, usize)>,
-    do_parse!(
-       tag!("rotate row y=")                       >>
-       row: map_res!(digit, std::str::from_utf8)   >>
-       tag!(" by ")                                >>
-       shift: map_res!(digit, std::str::from_utf8) >>
-       (row.parse::<usize>().unwrap(), shift.parse::<usize>().unwrap())
-    )
-);
-
-/// Parse the instruction to rotate a column.
-/// The input string should match one the regexp: ^rotate column x=\d+ by \d+$
-named!(rotate_col<&[u8], (usize, usize)>,
-    do_parse!(
-       tag!("rotate column x=")                    >>
-       col: map_res!(digit, std::str::from_utf8)   >>
-       tag!(" by ")                                >>
-       shift: map_res!(digit, std::str::from_utf8) >>
-       (col.parse::<usize>().unwrap(), shift.parse::<usize>().unwrap())
-    )
-);
-
-/// Parse an instruction.
-named!(parse_instruction<&[u8], Instruction>,
-    alt!(
-        turn_on    => {|(w, h)| Instruction::TurnOn { width: w, height: h }}
-      | rotate_row => {|(r, s)| Instruction::RotateRow    { row: r, shift: s }}
-      | rotate_col => {|(c, s)| Instruction::RotateColumn { col: c, shift: s }}
-    )
-);
 
 // }}}
 
 use screen::Screen;
+use instruction::Instruction;
 
 pub fn execute(screen : &mut Screen, instructions: &[Instruction]) {
     for instruction in instructions.iter() {
@@ -299,14 +317,12 @@ pub fn execute(screen : &mut Screen, instructions: &[Instruction]) {
 }
 
 fn main() {
-    let mut file   = File::open("input.txt").unwrap();
-    let mut input  = String::new();
+    let mut file  = File::open("input.txt").unwrap();
+    let mut input = String::new();
 
     file.read_to_string(&mut input).unwrap();
-    let instructions = input.lines()
-                            .map(|s| parse_instruction(s.as_bytes()).to_result()
-                                                                    .unwrap())
-                            .collect::<Vec<_>>();
+    let instructions = input.lines().map(|line| line.parse().unwrap())
+                                    .collect::<Vec<_>>();
     let mut screen = Screen::new(50, 6);
     execute(&mut screen, &instructions);
     println!("After swiping the card, there are {} pixels lit on the screen.",
