@@ -46,39 +46,27 @@ mod compress {
         Marker { length: length, repeat: repeat }
     }
 
-    /// Expands a marker.
-    ///
-    /// `length` bytes are extracted from the stream and they are repeated `repeat`
-    /// times.
-    fn expand_marker<'a, I>(stream: &mut I, marker: Marker) -> Vec<u8>
-        where I: Iterator<Item=&'a u8>
-    {
-        let payload = stream.take(marker.length).collect::<Vec<_>>();
-        assert_eq!(payload.len(), marker.length);
-
-        payload.into_iter().cycle().take(marker.repeat*marker.length)
-               .map(|b| *b).collect::<Vec<_>>()
-    }
-
-    /// Decompresses the input string.
-    pub fn decompress(s : &str) -> String {
+    /// Computes the size of the string after decompression.
+    pub fn compute_final_size(s : &str) -> u64 {
         let mut bytes  = s.as_bytes().iter();
-        let mut result = Vec::with_capacity(s.len());
+        let mut size   = 0;
 
         while let Some(&b) = bytes.next() {
             if b == b'(' {
                 let marker = extract_marker(&mut bytes);
-                result.extend(expand_marker(&mut bytes, marker));
+                // Skip `marker.length` bytes.
+                bytes.nth(marker.length - 1);
+                size += (marker.length*marker.repeat) as u64;
             } else {
-                result.push(b);
+                size += 1;
             }
         }
-        String::from_utf8_lossy(&result).into_owned()
+        size
     }
 }
 
 // }}}
-use compress::decompress;
+use compress::compute_final_size;
 
 fn main() {
     let mut file  = File::open("input.txt").unwrap();
@@ -86,20 +74,20 @@ fn main() {
 
     file.read_to_string(&mut input).unwrap();
 
-    println!("The decompressed length of the file is {}.",
-             decompress(&input.trim()).len());
+    println!("The decompressed length of the file is {} bytes.",
+             compute_final_size(&input.trim()));
 }
 
 // {{{ Tests
 
 #[test]
 fn examples_part1() {
-    assert_eq!(decompress("ADVENT"),            "ADVENT");
-    assert_eq!(decompress("A(1x5)BC"),          "ABBBBBC");
-    assert_eq!(decompress("(3x3)XYZ"),          "XYZXYZXYZ");
-    assert_eq!(decompress("A(2x2)BCD(2x2)EFG"), "ABCBCDEFEFG");
-    assert_eq!(decompress("(6x1)(1x3)A"),       "(1x3)A");
-    assert_eq!(decompress("X(8x2)(3x3)ABCY"),   "X(3x3)ABC(3x3)ABCY");
+    assert_eq!(compute_final_size("ADVENT"),             6);
+    assert_eq!(compute_final_size("A(1x5)BC"),           7);
+    assert_eq!(compute_final_size("(3x3)XYZ"),           9);
+    assert_eq!(compute_final_size("A(2x2)BCD(2x2)EFG"), 11);
+    assert_eq!(compute_final_size("(6x1)(1x3)A"),        6);
+    assert_eq!(compute_final_size("X(8x2)(3x3)ABCY"),   18);
 }
 
 // }}}
