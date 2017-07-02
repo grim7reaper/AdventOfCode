@@ -210,19 +210,31 @@ mod md5 {
 
 // }}}
 
-fn mine(key : &str) -> u64 {
+fn mine<F>(key : &str, pred: F) -> u64
+    where F: Fn(&[u8; 16]) -> bool {
     for n in 0u64.. {
         let data = format!("{}{}", key, n);
         let hash = md5::digest(data.as_bytes());
-        // As one byte == two hex character, we have to tests the 2.5 bytes (two
-        // whole bytes + the 4 high bits of the third byte) to see if the digest
-        // starts with 5 zeroes.
-        if (hash[0] | hash[1] | (hash[2] >> 4)) == 0 {
+        if pred(&hash) {
             return n;
         }
     }
     assert!(false, "no solution found");
     0
+}
+
+fn check_five_zeros(hash: &[u8; 16]) -> bool {
+    // As one byte == two hex character, we have to tests the 2.5 bytes (two
+    // whole bytes + the 4 high bits of the third byte) to see if the digest
+    // starts with 5 zeroes.
+    (hash[0] | hash[1] | (hash[2] >> 4)) == 0
+}
+
+fn check_six_zeros(hash: &[u8; 16]) -> bool {
+    // As one byte == two hex character, we have to tests the 2.5 bytes (two
+    // whole bytes + the 4 high bits of the third byte) to see if the digest
+    // starts with 5 zeroes.
+    (hash[0] | hash[1] | hash[2]) == 0
 }
 
 fn main() {
@@ -235,7 +247,10 @@ fn main() {
     // Remove trailing new line.
     input.pop();
 
-    println!("The solution is {}.", mine(&input));
+    println!("The solution for five zeros is {}.",
+             mine(&input, check_five_zeros));
+    println!("The solution for six zeros is {}.",
+             mine(&input, check_six_zeros));
 }
 
 // {{{ Tests
@@ -280,7 +295,7 @@ fn test_md5_rfc1321() {
 
 #[test]
 fn examples_part1() {
-    assert_eq!(mine("abcdef"), 609043);
+    assert_eq!(mine("abcdef", check_five_zeros), 609043);
 }
 
 // }}}
