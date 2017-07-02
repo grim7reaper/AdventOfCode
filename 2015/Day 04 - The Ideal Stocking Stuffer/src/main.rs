@@ -210,6 +210,21 @@ mod md5 {
 
 // }}}
 
+fn mine(key : &str) -> u64 {
+    for n in 0u64.. {
+        let data = format!("{}{}", key, n);
+        let hash = md5::digest(data.as_bytes());
+        // As one byte == two hex character, we have to tests the 2.5 bytes (two
+        // whole bytes + the 4 high bits of the third byte) to see if the digest
+        // starts with 5 zeroes.
+        if (hash[0] | hash[1] | (hash[2] >> 4)) == 0 {
+            return n;
+        }
+    }
+    assert!(false, "no solution found");
+    0
+}
+
 fn main() {
     let file = File::open("input.txt").expect("cannot open input.txt");
     let mut input  = String::new();
@@ -220,11 +235,7 @@ fn main() {
     // Remove trailing new line.
     input.pop();
 
-    let res = md5::digest(input.as_bytes());
-    for b in res.iter() {
-        print!("{:02x}", b);
-    }
-    println!("");
+    println!("The solution is {}.", mine(&input));
 }
 
 // {{{ Tests
@@ -265,6 +276,11 @@ fn test_md5_rfc1321() {
     for &(data, expected) in testcases.iter() {
         assert_eq!(md5::digest(data.as_bytes()), *expected);
     }
+}
+
+#[test]
+fn examples_part1() {
+    assert_eq!(mine("abcdef"), 609043);
 }
 
 // }}}
