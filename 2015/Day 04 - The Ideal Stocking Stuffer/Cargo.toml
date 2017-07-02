@@ -1,0 +1,7 @@
+[package]
+name = "the_ideal_stocking_stuffer"
+version = "0.1.0"
+authors = ["Sylvain Laperche <sylvain.laperche@gmail.com>"]
+
+[dependencies]
+byteorder = "1.0.0"
