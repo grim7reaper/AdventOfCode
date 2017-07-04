@@ -41,7 +41,7 @@ mod grid {
     pub struct Grid {
         width  : usize,
         height : usize,
-        lights : Vec<bool>,
+        lights : Vec<u32>,
     }
 
     impl Grid {
@@ -50,32 +50,49 @@ mod grid {
             Grid {
                 width:  width,
                 height: height,
-                lights: vec![false; width*height],
+                lights: vec![0; width*height],
             }
         }
 
         /// Returns the number of lights lit on the grid.
         pub fn lights_lit(&self) -> i32 {
-            self.lights.iter().fold(0, |sum, &p| if p { sum + 1 } else { sum })
+            self.lights.iter().fold(0,
+                |sum, &v| if v != 0 { sum + 1 } else { sum }
+            )
+        }
+
+        /// Returns the total brightness.
+        pub fn brightness(&self) -> i32 {
+            self.lights.iter().fold(0, |sum, &v| sum + v as i32)
         }
 
         /// Turns on the lights in the specified rectangle.
         pub fn turn_on(&mut self, rect: &super::Rect) {
-            self.apply_op_on_rect(|_| true, rect);
+            self.apply_op_on_rect(|_| 1, rect);
         }
 
         /// Turns off the lights in the specified rectangle.
         pub fn turn_off(&mut self, rect: &super::Rect) {
-            self.apply_op_on_rect(|_| false, rect);
+            self.apply_op_on_rect(|_| 0, rect);
         }
 
         /// Toggle the lights in the specified rectangle.
         pub fn toggle(&mut self, rect: &super::Rect) {
-            self.apply_op_on_rect(|b| !b, rect);
+            self.apply_op_on_rect(|v| if v == 0 { 1 } else { 0 }, rect);
+        }
+
+        /// Increase the brightness in the specified rectangle.
+        pub fn inc_brightness(&mut self, rect: &super::Rect, x: u32) {
+            self.apply_op_on_rect(|v| v + x, rect);
+        }
+
+        /// Increase the brightness in the specified rectangle.
+        pub fn dec_brightness(&mut self, rect: &super::Rect) {
+            self.apply_op_on_rect(|v| v.saturating_sub(1), rect);
         }
 
         fn apply_op_on_rect<F>(&mut self, op: F, area: &super::Rect)
-            where F: Fn(bool) -> bool {
+            where F: Fn(u32) -> u32 {
             let i_0 = area.tl.x as usize;
             let i_n = area.br.x as usize;
             let j_0 = area.tl.y as usize;
@@ -202,6 +219,15 @@ pub fn execute(grid: &mut Grid, instructions: &[Instruction]) {
     }
 }
 
+pub fn execute_v2(grid: &mut Grid, instructions: &[Instruction]) {
+    for instruction in instructions.iter() {
+        match instruction {
+            &Instruction::TurnOn(area)  => grid.inc_brightness(&area, 1),
+            &Instruction::TurnOff(area) => grid.dec_brightness(&area),
+            &Instruction::Toggle(area)  => grid.inc_brightness(&area, 2),
+        }
+    }
+}
 
 fn main() {
     let mut file  = File::open("input.txt").unwrap();
@@ -210,10 +236,16 @@ fn main() {
     file.read_to_string(&mut input).unwrap();
     let instructions = input.lines().map(|l| l.parse::<Instruction>().unwrap())
                                     .collect::<Vec<_>>();
+
     let mut grid = Grid::new(1000, 1000);
     execute(&mut grid, &instructions);
     println!("After following the instructions, there are {} lights lit.",
              grid.lights_lit());
+
+    let mut grid = Grid::new(1000, 1000);
+    execute_v2(&mut grid, &instructions);
+    println!("After following the instructions, the total brightness is {}.",
+             grid.brightness());
 }
 
 // {{{ Tests
@@ -233,6 +265,23 @@ fn examples_part1() {
         br: Point { x: 500, y: 500}
     });
     assert_eq!(grid.lights_lit(), 998_996);
+}
+
+#[test]
+fn examples_part2() {
+    let mut grid = Grid::new(1000, 1000);
+
+    grid.inc_brightness(&Rect {
+        tl: Point { x: 0, y: 0},
+        br: Point { x: 0, y: 0}
+    }, 1);
+    assert_eq!(grid.brightness(), 1);
+
+    grid.inc_brightness(&Rect {
+        tl: Point { x: 0,   y: 0},
+        br: Point { x: 999, y: 999}
+    }, 2);
+    assert_eq!(grid.brightness(), 2_000_001);
 }
 
 // }}}
