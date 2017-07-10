@@ -291,6 +291,10 @@ mod instruction {
 use factory::Factory;
 use instruction::Instruction;
 
+fn output_product(fact: &Factory, ids: &[u32]) -> i32 {
+    ids.iter().fold(1, |product, id| product * fact.get_bin_value(*id).unwrap())
+}
+
 fn main() {
     let mut file  = File::open("input.txt").unwrap();
     let mut input = String::new();
@@ -304,6 +308,8 @@ fn main() {
     if let Some(action) = log.iter().find(|a| a.low == 17 && a.high == 61) {
         println!("Bot {} compared the value 17 and 61.", action.bot);
     }
+    println!("The product of the output bins 0, 1 and 2 is {}.",
+             output_product(&fact, &[0, 1, 2]));
 }
 
 // {{{ Tests
@@ -325,6 +331,23 @@ value 2 goes to bot 2";
     assert_eq!(fact.get_bin_value(0), Some(5));
     assert_eq!(fact.get_bin_value(1), Some(2));
     assert_eq!(fact.get_bin_value(2), Some(3));
+}
+
+#[test]
+fn examples_part2() {
+    let input = "value 5 goes to bot 2
+bot 2 gives low to bot 1 and high to bot 0
+value 3 goes to bot 1
+bot 1 gives low to output 1 and high to bot 0
+bot 0 gives low to output 2 and high to output 0
+value 2 goes to bot 2";
+
+    let instructions = input.lines().map(|l| l.parse::<Instruction>().unwrap())
+                                    .collect::<Vec<_>>();
+
+    let mut fact = Factory::new(&instructions);
+    fact.run();
+    assert_eq!(output_product(&fact, &[0, 1, 2]), 30);
 }
 
 // }}}
