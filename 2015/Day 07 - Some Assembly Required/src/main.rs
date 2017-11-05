@@ -278,7 +278,8 @@ mod circuit {
             let instructions = description.lines()
                                           .map(|line| Instruction::from(line))
                                           .collect::<Vec<_>>();
-
+            self.wires.clear();
+            self.graph.clear();
             for instruction in instructions.into_iter() {
                 match instruction {
                     Instruction::Assign { value, out } |
@@ -348,6 +349,13 @@ mod circuit {
                     _                => None
                 }
             )
+        }
+
+        /// Set the signal on the specified wire.
+        pub fn set_signal(&mut self, wire: &str, value: u16) {
+            if let Some(signal) = self.wires.get_mut(wire) {
+                *signal = Signal::Value(value)
+            }
         }
 
         // {{{ Internals
@@ -420,7 +428,15 @@ fn main() {
     circuit.build(&description);
     circuit.emulate();
 
+    let signal_a = circuit.get_signal("a").unwrap();
     println!("After running the circuit, the signal on wire `a` is {}.",
+             signal_a);
+
+    circuit.build(&description);
+    println!("Overriding `b` with {}", signal_a);
+    circuit.set_signal("b", signal_a);
+    circuit.emulate();
+    println!("After re-running the circuit, the signal on wire `a` is {}.",
              circuit.get_signal("a").unwrap());
 }
 

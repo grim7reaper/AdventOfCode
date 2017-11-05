@@ -63,3 +63,9 @@ After it is run, these are the signals on the wires:
 
 In little Bobby's kit's instructions booklet (provided as your puzzle input),
 what signal is ultimately provided to **wire `a`**?
+
+## --- Part Two ---
+
+Now, take the signal you got on wire `a`, override wire `b` to that signal, and
+reset the other wires (including wire `a`). What new signal is ultimately
+provided to wire `a`?
