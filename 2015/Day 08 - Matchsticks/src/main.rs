@@ -47,6 +47,14 @@ fn memory_length(s: &str) -> usize {
     len - simple_esc - hex_esc
 }
 
+// Return the number of characters in the encoded string.
+fn encoded_length(s: &str) -> usize {
+    let len = code_length(s) + 2;
+
+    let esc = Regex::new(r#"\\|""#).unwrap();
+    len + esc.find_iter(s).count()
+}
+
 fn main() {
     let mut file  = File::open("input.txt").unwrap();
     let mut input = String::new();
@@ -55,9 +63,12 @@ fn main() {
 
     let code_sum: usize = input.lines().map(|l| code_length(l)).sum();
     let mem_sum:  usize = input.lines().map(|l| memory_length(l)).sum();
+    let enc_sum:  usize = input.lines().map(|l| encoded_length(l)).sum();
 
     println!("The difference between code and in-memory is {}",
              code_sum - mem_sum);
+    println!("The difference between encoded and code is {}",
+             enc_sum - code_sum);
 }
 
 // {{{ Tests
@@ -70,6 +81,16 @@ fn examples_part1() {
     let mem_sum:  usize = input.iter().map(|s| memory_length(s)).sum();
 
     assert_eq!(code_sum - mem_sum, 12);
+}
+
+#[test]
+fn examples_part2() {
+    let input = vec![r#""""#, r#""abc""#, r#""aaa\"aaa""#, r#""\x27""#];
+
+    let code_sum: usize = input.iter().map(|s| code_length(s)).sum();
+    let enc_sum:  usize = input.iter().map(|s| encoded_length(s)).sum();
+
+    assert_eq!(enc_sum - code_sum, 19);
 }
 
 // }}}
