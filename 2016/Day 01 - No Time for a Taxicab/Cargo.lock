@@ -1,4 +1,4 @@
-[root]
+[[package]]
 name = "no_time_for_a_taxicab"
 version = "0.1.0"
 
