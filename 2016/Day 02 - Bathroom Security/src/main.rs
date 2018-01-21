@@ -117,10 +117,10 @@ impl Finger {
     }
 
     /// Move the finger over the keypad.
-    fn mv(&mut self, movement: Move, keypad: &Keypad) {
+    fn mv(&mut self, movement: &Move, keypad: &Keypad) {
         let mut target = self.position;
 
-        match movement {
+        match *movement {
             Move::Up    => target.y -= 1,
             Move::Down  => target.y += 1,
             Move::Left  => target.x -= 1,
@@ -173,9 +173,9 @@ fn follow_instructions(instructions: &str, keypad: &Keypad) -> String {
     let mut pinky = Finger::new(keypad.starting_pos());
 
     for line in instructions.lines() {
-        let moves: Vec<Move> = line.chars().map(|c| Move::from(c)).collect();
+        let moves: Vec<Move> = line.chars().map(Move::from).collect();
         for movement in moves {
-            pinky.mv(movement, keypad);
+            pinky.mv(&movement, keypad);
         }
         code.push(pinky.press_key(keypad));
     }

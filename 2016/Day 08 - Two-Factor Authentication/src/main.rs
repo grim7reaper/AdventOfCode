@@ -121,6 +121,7 @@ mod screen {
     // {{{ Helpers
 
     /// Converts 2D indices into a 1D index.
+    #[cfg_attr(feature = "cargo-clippy", allow(inline_always))]
     #[inline(always)]
     fn indices_to_index(line: u16, column: u16, width: u16) -> usize {
         (line*width + column) as usize
@@ -305,12 +306,12 @@ use instruction::Instruction;
 
 pub fn execute(screen : &mut Screen, instructions: &[Instruction]) {
     for instruction in instructions.iter() {
-        match instruction {
-            &Instruction::TurnOn { width, height }
+        match *instruction {
+            Instruction::TurnOn { width, height }
                 => screen.turn_on(width, height),
-            &Instruction::RotateRow { row, shift }
+            Instruction::RotateRow { row, shift }
                 => screen.rotate_row(row, shift),
-            &Instruction::RotateColumn { col, shift }
+            Instruction::RotateColumn { col, shift }
                 => screen.rotate_col(col, shift),
         }
     }

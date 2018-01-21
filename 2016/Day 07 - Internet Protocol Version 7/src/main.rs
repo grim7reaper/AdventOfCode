@@ -20,6 +20,7 @@ use std::str::FromStr;
 // {{{ IPv7
 
 /// An IPv7 address.
+#[cfg_attr(feature = "cargo-clippy", allow(doc_markdown))]
 #[derive(Debug)]
 struct IPv7 {
     address:   Vec<u8>,
@@ -33,20 +34,18 @@ impl FromStr for IPv7 {
     fn from_str(s: &str) -> Result<IPv7, String> {
         let mut s_net = Vec::new();
         let mut h_net = Vec::new();
-        let mut bytes = s.as_bytes().iter();
         let mut begin = 0;     // Start of the current slice.
         let mut end   = 0;     // End of the current slice.
         let mut in_hypernet = false; // Are we in an hypernet sequence?
 
-        while let Some(b) = bytes.next() {
+        for b in s.as_bytes() {
             end += 1;
             if *b == b'[' {
                 assert_eq!(in_hypernet, false);
                 in_hypernet = true;
                 s_net.push((begin, end-1));
                 begin = end;
-            } else
-            if *b == b']' {
+            } else if *b == b']' {
                 assert_eq!(in_hypernet, true);
                 in_hypernet = false;
                 h_net.push((begin, end-1));
@@ -60,8 +59,7 @@ impl FromStr for IPv7 {
 
         if s_net.is_empty() {
             Err("no supernet sequences".to_owned())
-        } else
-        if h_net.is_empty() {
+        } else if h_net.is_empty() {
             Err("no hypernet sequences".to_owned())
         } else {
             Ok(IPv7 {

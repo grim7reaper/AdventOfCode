@@ -79,7 +79,7 @@ impl Agent {
     }
 
     /// Moves according to the instructions.
-    fn follow_instructions(&mut self, instructions: &Vec<Move>) {
+    fn follow_instructions(&mut self, instructions: &[Move]) {
         let mut blocks = HashSet::new();
 
         for instruction in instructions {
@@ -87,10 +87,8 @@ impl Agent {
             for _ in 0 .. instruction.steps {
                 // If we have read **all** the instructions, we know we should
                 // stop as soon as we walk on the same block twice.
-                if self.has_read_all {
-                    if !blocks.insert(self.position) {
-                        break;
-                    }
+                if self.has_read_all && !blocks.insert(self.position) {
+                    break;
                 }
                 match self.direction {
                     Direction::North => self.position.y += 1,

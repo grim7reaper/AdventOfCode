@@ -42,7 +42,7 @@ fn is_nice_string(s: &str) -> bool {
             return has_pair;
         }
     }
-    return false;
+    false
 }
 
 fn is_nice_string_v2(s: &str) -> bool {
@@ -66,7 +66,7 @@ fn is_nice_string_v2(s: &str) -> bool {
             return has_pair;
         }
     }
-    return false;
+    false
 }
 
 fn main() {

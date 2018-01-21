@@ -32,9 +32,10 @@ impl FromStr for Triangle {
     ///
     /// The input string should contains three integers separated by whitespaces.
     fn from_str(s: &str) -> Result<Triangle, String> {
+        let err_msg = "cannot build triangle with these sides";
         let sides = parse_line(s);
         Triangle::new(&[sides[0], sides[1], sides[2]])
-                 .ok_or("cannot build triangle with these sides".to_string())
+                 .ok_or_else(|| err_msg.to_string())
     }
 }
 
@@ -98,12 +99,11 @@ fn parse_by_line(input: &str) -> Vec<Triangle> {
 fn parse_by_block(input: &str) -> Vec<Triangle> {
     let mut res   = Vec::new();
     let mut lines = 0;
-    let mut rows  = input.lines().enumerate();
     // Staging buffer for triangles in construction.
     let mut sides = [[0, 0, 0]; 3];
 
-    while let Some((side_idx, line)) = rows.next() {
-        for (triangle_idx, val) in parse_line(&line).iter().enumerate() {
+    for (side_idx, line) in input.lines().enumerate() {
+        for (triangle_idx, val) in parse_line(line).iter().enumerate() {
             sides[triangle_idx][side_idx % 3] = *val;
         }
         // If we got three sides, the triangles are complete.

@@ -54,7 +54,7 @@ impl FromStr for Room {
         assert!(chars.next() == None);
         // Check if the room is legit.
         Room::new(&name, sector, &checksum)
-             .ok_or("the room is a decoy".into())
+             .ok_or_else(|| "the room is a decoy".into())
     }
 }
 

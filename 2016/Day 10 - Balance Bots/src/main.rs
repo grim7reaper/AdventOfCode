@@ -117,13 +117,13 @@ mod factory {
             };
             // 1. Create and connect the bots and output bins.
             for instr in instructions {
-                if let &Instruction::Connect { bot, lo, hi } = instr {
+                if let Instruction::Connect { bot, lo, hi } = *instr {
                     // Create bot.
                     assert_eq!(fact.bots.contains_key(&bot), false);
                     fact.bots.insert(bot, Bot::new(bot, lo, hi));
                     // Create output bins, if any.
-                    for out in [lo, hi].iter() {
-                        if let &Output::Bin(id) = out {
+                    for out in &[lo, hi] {
+                        if let Output::Bin(id) = *out {
                             assert_eq!(fact.bins.contains_key(&id), false);
                             fact.bins.insert(id, None);
                         }
@@ -132,7 +132,7 @@ mod factory {
             }
             // 2. Give initial value to some bots.
             for instr in instructions {
-                if let &Instruction::GiveValue{ bot: bot_id, value } = instr {
+                if let Instruction::GiveValue{ bot: bot_id, value } = *instr {
                     // At this point, bot must exists!
                     let bot = fact.bots.get_mut(&bot_id).unwrap();
                     bot.take(value);
@@ -162,8 +162,8 @@ mod factory {
                 let mut bot = self.bots.remove(&bot_id).unwrap();
                 if bot.is_full() {
                     // Add the output bots, if any, to the queue.
-                    for out in [bot.low, bot.high].iter() {
-                        if let &Output::Bot(out_id) = out {
+                    for out in &[bot.low, bot.high] {
+                        if let Output::Bot(out_id) = *out {
                             queue.push_back(out_id);
                         }
                     }
@@ -186,18 +186,18 @@ mod factory {
         }
 
         pub fn get_bin_value(&self, id: u32) -> Option<i32> {
-            *self.bins.get(&id).unwrap()
+            self.bins[&id]
         }
 
         // Forward the value `val` into `out`.
         fn forward_value(&mut self, out: &mut Output, val: i32) {
-            match out {
-                &mut Output::Bin(id) => {
+            match *out {
+                Output::Bin(id) => {
                     let bin = self.bins.get_mut(&id).unwrap();
                     assert!(bin.is_none());
                     *bin = Some(val);
                 },
-                &mut Output::Bot(id) => {
+                Output::Bot(id) => {
                     let bot = self.bots.get_mut(&id).unwrap();
                     bot.take(val);
                 },

@@ -26,7 +26,7 @@ use crypto::digest::Digest;
 /// Updates the cinematic "decrypting" animation.
 fn update_decrypting_animation(door: &str,  password : &[u8]) {
     print!("\rThe password of the {} is {}",
-           door, String::from_utf8_lossy(&password));
+           door, String::from_utf8_lossy(password));
     io::stdout().flush().unwrap();
 }
 
@@ -76,7 +76,7 @@ fn decode_password(door: &str, door_id : &[u8], is_in_order: bool) -> String {
             }
         }
     }).take(8).collect();
-    println!("");
+    println!();
     String::from_utf8_lossy(&password).to_string()
 }
 

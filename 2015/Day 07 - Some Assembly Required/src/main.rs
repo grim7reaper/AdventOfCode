@@ -276,11 +276,11 @@ mod circuit {
         /// Build a circuit from a description.
         pub fn build(&mut self, description : &str) {
             let instructions = description.lines()
-                                          .map(|line| Instruction::from(line))
+                                          .map(Instruction::from)
                                           .collect::<Vec<_>>();
             self.wires.clear();
             self.graph.clear();
-            for instruction in instructions.into_iter() {
+            for instruction in instructions {
                 match instruction {
                     Instruction::Assign { value, out } |
                     Instruction::Not    { value, out } => {
@@ -308,9 +308,9 @@ mod circuit {
 
             // Initialize the queue with the wires which have a known value.
             let mut queue = self.wires.iter().filter_map(|(wire, value)|
-                match value {
-                    &Signal::Value(_) => Some(wire.to_owned()),
-                    &Signal::Op(_)    => None,
+                match *value {
+                    Signal::Value(_) => Some(wire.to_owned()),
+                    Signal::Op(_)    => None,
                 }
             ).collect::<VecDeque<String>>();
 
@@ -362,7 +362,7 @@ mod circuit {
 
         // Add a wire into the circuit.
         fn add_wire(&mut self, wire: &str, signal: Signal) {
-            if let Some(_) = self.wires.insert(wire.to_owned(), signal) {
+            if self.wires.insert(wire.to_owned(), signal).is_some() {
                 panic!("wire {} already exists", wire);
             }
         }
@@ -371,7 +371,7 @@ mod circuit {
         fn update_relations(&mut self, value: Input, target: &str) {
             if let Input::Wire(wire) = value {
                 let source = self.graph.entry(wire.to_owned())
-                                       .or_insert(Vec::new());
+                                       .or_insert_with(Vec::new);
                 (*source).push(target.to_owned());
             }
         }

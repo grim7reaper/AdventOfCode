@@ -60,9 +60,9 @@ fn main() {
     BufReader::new(&file).read_line(&mut input).unwrap();
     assert!(!input.is_empty());
 
-    println!("Santa should go to the floor {}.", compute_floor(&input.trim()));
+    println!("Santa should go to the floor {}.", compute_floor(input.trim()));
     println!("The first time Santa goes into the basement it at instruction {}.",
-             find_instruction_to_basement(&input.trim()));
+             find_instruction_to_basement(input.trim()));
 }
 
 // {{{ Tests

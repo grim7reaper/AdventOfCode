@@ -91,9 +91,9 @@ fn main() {
 
     let input = input.trim();
     println!("The decompressed length of the file is {} bytes.",
-             compute_final_size_v1(&input));
+             compute_final_size_v1(input));
     println!("The real decompressed length of the file is {} bytes.",
-             compute_final_size_v2(&input));
+             compute_final_size_v2(input));
 }
 
 // {{{ Tests

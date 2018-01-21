@@ -76,7 +76,7 @@ fn follow_instructions(instructions: &str,
     // Everyone starts at the same position, we only need to insert the first.
     houses.insert(santa_crew[0]);
 
-    let instructions = instructions.chars().map(|c| Direction::from(c));
+    let instructions = instructions.chars().map(Direction::from);
     for (crew, direction) in instructions.enumerate() {
         let worker_idx = crew % santa_crew.len();
         let worker     = &mut santa_crew[worker_idx];

@@ -66,8 +66,8 @@ fn compute_consensus<F>(messages: &[&str], init: i32, select: F) -> String
     let mut ch_freq = HashMap::new();
     for ch_idx in 0..msg_len {
         // Compute letter frequencies.
-        for msg_idx in 0..messages.len() {
-            let ch = messages[msg_idx].as_bytes()[ch_idx] as char;
+        for message in messages {
+            let ch = message.as_bytes()[ch_idx] as char;
             *ch_freq.entry(ch).or_insert(0) += 1;
         }
         // Find the letter that match the criterion.

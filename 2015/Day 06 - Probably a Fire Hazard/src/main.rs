@@ -109,6 +109,7 @@ mod grid {
     // {{{ Helpers
 
     /// Converts 2D indices into a 1D index.
+    #[cfg_attr(feature = "cargo-clippy", allow(inline_always))]
     #[inline(always)]
     fn indices_to_index(line: usize, column: usize, width: usize) -> usize {
         line*width + column
@@ -211,20 +212,20 @@ use instruction::Instruction;
 
 pub fn execute(grid: &mut Grid, instructions: &[Instruction]) {
     for instruction in instructions.iter() {
-        match instruction {
-            &Instruction::TurnOn(area)  => grid.turn_on(&area),
-            &Instruction::TurnOff(area) => grid.turn_off(&area),
-            &Instruction::Toggle(area)  => grid.toggle(&area),
+        match *instruction {
+            Instruction::TurnOn(area)  => grid.turn_on(&area),
+            Instruction::TurnOff(area) => grid.turn_off(&area),
+            Instruction::Toggle(area)  => grid.toggle(&area),
         }
     }
 }
 
 pub fn execute_v2(grid: &mut Grid, instructions: &[Instruction]) {
     for instruction in instructions.iter() {
-        match instruction {
-            &Instruction::TurnOn(area)  => grid.inc_brightness(&area, 1),
-            &Instruction::TurnOff(area) => grid.dec_brightness(&area),
-            &Instruction::Toggle(area)  => grid.inc_brightness(&area, 2),
+        match *instruction {
+            Instruction::TurnOn(area)  => grid.inc_brightness(&area, 1),
+            Instruction::TurnOff(area) => grid.dec_brightness(&area),
+            Instruction::Toggle(area)  => grid.inc_brightness(&area, 2),
         }
     }
 }
