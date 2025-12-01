@@ -1,0 +1,10 @@
+max_width = 80
+wrap_comments = true
+normalize_comments = true
+normalize_doc_attributes = false
+imports_granularity = "Crate"
+reorder_impl_items = true
+style_edition = "2024"
+use_try_shorthand = true
+use_field_init_shorthand = true
+unstable_features = true
