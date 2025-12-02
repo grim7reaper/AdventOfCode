@@ -1,0 +1,6 @@
+# Don't commit input data!
+#
+# As per https://adventofcode.com/about#legal
+#     If you're posting a code repository somewhere, please don't include parts
+#     of Advent of Code like the puzzle text or your inputs.
+input/
