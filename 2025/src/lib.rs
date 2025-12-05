@@ -8,3 +8,5 @@ pub mod day02;
 pub mod day03;
 /// Solution for day 4.
 pub mod day04;
+/// Solution for day 5.
+pub mod day05;
