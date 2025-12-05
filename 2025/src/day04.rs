@@ -50,6 +50,7 @@ impl Map {
         self.grid[ny as usize][nx as usize]
     }
 
+    #[expect(clippy::needless_range_loop, reason = "more readable that way")]
     fn pick_paper(&mut self) -> usize {
         let mut count = 0;
         let mut next = self.grid.clone();
